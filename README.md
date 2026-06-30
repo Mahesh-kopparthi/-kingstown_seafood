@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Kings Town Sea Food - Website
 
 A modern, responsive React + Tailwind CSS website for a premium seafood business.
@@ -86,3 +87,6 @@ Edit the following files to customize:
 ## License
 
 Private Project - Kings Town Sea Food
+=======
+# -kingstown_seafood
+>>>>>>> 16ee7bcb869e7038653d9a41d85093147cf956c8
