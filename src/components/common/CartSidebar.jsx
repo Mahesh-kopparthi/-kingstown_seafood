@@ -1,145 +1,116 @@
 import React from 'react'
 import { Trash2, ShoppingCart, X, Plus, Minus, MessageCircle, Package, Truck } from 'lucide-react'
 import { productDetails } from '../../data/productDetails'
+import { asset } from '../../utils/assets'
 
-export default function CartSidebar({
-  cartItems,
-  onRemoveItem,
-  onUpdateQuantity,
-  onClearCart,
-  isOpen,
-  onClose,
-  onCheckout,
-}) {
+export default function CartSidebar({ cartItems, onRemoveItem, onUpdateQuantity, onClearCart, isOpen, onClose, onCheckout }) {
   const packagingCharge = 60
-  const deliveryCharge = 50
+  const deliveryCharge  = 50
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.total, 0)
+  const subtotal      = cartItems.reduce((sum, item) => sum + item.total, 0)
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0)
-  const discount = totalQuantity >= 3 ? subtotal * 0.05 : totalQuantity >= 6 ? subtotal * 0.1 : 0
-  const total = subtotal - discount + packagingCharge + deliveryCharge
+  const discount      = totalQuantity >= 6 ? subtotal * 0.10 : totalQuantity >= 3 ? subtotal * 0.05 : 0
+  const total         = subtotal - discount + packagingCharge + deliveryCharge
 
-  const formatINR = (value) =>
-    new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(value)
+  const fmt = (v) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v)
 
-  const handleWhatsAppOrder = () => {
-    const orderText = cartItems
-      .map(
-        (item) =>
-          `• ${item.name} (${item.size}) - ${item.quantity} Kg - ${formatINR(item.total)}`
-      )
-      .join('\n')
-    const message = `Hello Kings Town Seafood! I would like to place an order:\n\n${orderText}\n\n*Subtotal: ${formatINR(subtotal)}*\n*Packaging: ${formatINR(packagingCharge)}*\n*Delivery: ${formatINR(deliveryCharge)}*${discount > 0 ? `\n*Discount: -${formatINR(discount)}*` : ''}\n\n*Total: ${formatINR(total)}*\n\nPlease confirm my order.`
-    const encodedMessage = encodeURIComponent(message)
-    window.open(`https://wa.me/918586164999?text=${encodedMessage}`, '_blank')
+  const handleWhatsApp = () => {
+    const lines = cartItems.map((i) => `• ${i.name} (${i.size}) - ${i.quantity} Kg - ${fmt(i.total)}`).join('\n')
+    const msg = `Hello Kingstown Seafood! I'd like to place an order:\n\n${lines}\n\n*Subtotal: ${fmt(subtotal)}*\n*Packaging: ${fmt(packagingCharge)}*\n*Delivery: ${fmt(deliveryCharge)}*${discount > 0 ? `\n*Discount: -${fmt(discount)}*` : ''}\n\n*Total: ${fmt(total)}*\n\nPlease confirm my order.`
+    window.open(`https://wa.me/919858664999?text=${encodeURIComponent(msg)}`, '_blank')
   }
 
   if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <aside className="relative w-full max-w-md max-h-[90vh] bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between border-b border-slate-200 p-5 bg-gradient-to-r from-ocean to-aqua">
+      <div className="absolute inset-0 bg-black/55 backdrop-blur-sm" onClick={onClose} />
+      <aside className="relative w-full max-w-md max-h-[90vh] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col" style={{ background: '#fff' }}>
+
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 sm:p-5" style={{ background: '#0B2638' }}>
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white">
-              <ShoppingCart size={20} />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: 'rgba(8,127,140,0.25)', color: '#fff' }}>
+              <ShoppingCart size={19} />
             </div>
             <div>
               <p className="text-sm font-semibold text-white">Your Cart</p>
-              <p className="text-xs text-teal">{totalQuantity} item(s)</p>
+              <p className="text-xs" style={{ color: '#20B8C5' }}>{totalQuantity} item{totalQuantity !== 1 ? 's' : ''}</p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-white/20 transition"
-            aria-label="Close cart"
-          >
-            <X size={20} className="text-white" />
+          <button type="button" onClick={onClose} className="p-2 rounded-full transition hover:bg-white/10 text-white" aria-label="Close cart">
+            <X size={19} />
           </button>
         </div>
 
         {cartItems.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-            <ShoppingCart size={48} className="text-slate-300 mb-4" />
-            <p className="text-gray-600 text-lg">Your cart is empty</p>
-            <p className="text-gray-400 text-sm mt-2">Add some fresh seafood to get started!</p>
-            <button
-              type="button"
-              onClick={onClose}
-              className="mt-6 bg-ocean hover:bg-aqua text-white px-6 py-3 rounded-full font-semibold transition"
+            <div className="w-18 h-18 rounded-full mb-4 flex items-center justify-center" style={{ background: '#EDE3D2', width: 72, height: 72 }}>
+              <ShoppingCart size={32} style={{ color: '#8A9BA6' }} />
+            </div>
+            <p className="text-base font-semibold mb-1" style={{ color: '#17232B' }}>Your cart is empty</p>
+            <p className="text-sm mb-5" style={{ color: '#8A9BA6' }}>Add some fresh seafood to get started!</p>
+            <button type="button" onClick={onClose}
+              className="px-6 py-2.5 rounded-full text-sm font-bold text-white transition"
+              style={{ background: '#087F8C' }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#0A9BA9')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = '#087F8C')}
             >
               Browse Products
             </button>
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            {/* Items */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3" style={{ background: '#FAF7F0' }}>
               {cartItems.map((item, index) => {
                 const product = productDetails[item.id]
                 return (
                   <div
                     key={`${item.id}-${item.size}-${index}`}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                    className="rounded-2xl p-3 sm:p-4 shadow-sm"
+                    style={{ background: '#fff', border: '1.5px solid #EDE3D2' }}
                   >
-                    <div className="flex gap-4">
-                      <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-slate-200">
-                        <img
-                          src={product?.image || '/images/placeholder.jpg'}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
+                    <div className="flex gap-3 sm:gap-4">
+                      <div className="w-16 h-16 sm:w-18 sm:h-18 flex-shrink-0 rounded-xl overflow-hidden" style={{ background: '#EDE3D2', width: 64, height: 64 }}>
+                        <img src={product?.image || asset('/images/prawns.jpg')} alt={item.name} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-gray-900 truncate">{item.name}</p>
-                            <p className="mt-1 text-sm text-gray-600">{item.size}</p>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold truncate" style={{ color: '#17232B' }}>{item.name}</p>
+                            <p className="text-xs mt-0.5" style={{ color: '#8A9BA6' }}>{item.size}</p>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => onRemoveItem(index)}
-                            className="text-gray-400 transition hover:text-red-500 flex-shrink-0"
-                            aria-label="Remove item"
+                          <button type="button" onClick={() => onRemoveItem(index)}
+                            className="p-1 transition flex-shrink-0" aria-label="Remove item"
+                            style={{ color: '#8A9BA6' }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = '#dc2626')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = '#8A9BA6')}
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={15} />
                           </button>
                         </div>
                         <div className="mt-2 flex items-center justify-between">
-                          <p className="text-sm font-semibold text-ocean">
-                            {formatINR(item.unitPrice)}/Kg
-                          </p>
-                          <p className="text-sm font-bold text-gray-900">
-                            {formatINR(item.total)}
-                          </p>
+                          <p className="text-xs font-semibold" style={{ color: '#087F8C' }}>{fmt(item.unitPrice)}/Kg</p>
+                          <p className="text-xs font-bold" style={{ color: '#17232B' }}>{fmt(item.total)}</p>
                         </div>
-                        <div className="mt-3 flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => onUpdateQuantity?.(index, item.quantity - 1)}
-                            className="w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:border-ocean transition"
-                            aria-label="Decrease quantity"
-                          >
-                            <Minus size={14} className="text-gray-600" />
+                        <div className="mt-2 flex items-center gap-2">
+                          <button type="button" onClick={() => onUpdateQuantity?.(index, item.quantity - 1)}
+                            className="w-7 h-7 rounded-full flex items-center justify-center shadow-sm transition"
+                            style={{ background: '#fff', border: '1.5px solid #EDE3D2' }}
+                            onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#087F8C')}
+                            onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#EDE3D2')}
+                            aria-label="Decrease">
+                            <Minus size={13} style={{ color: '#4A5E6A' }} />
                           </button>
-                          <span className="w-8 text-center font-semibold text-gray-900 text-sm">
-                            {item.quantity} Kg
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => onUpdateQuantity?.(index, item.quantity + 1)}
-                            className="w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:border-ocean transition"
-                            aria-label="Increase quantity"
-                          >
-                            <Plus size={14} className="text-gray-600" />
+                          <span className="w-10 text-center text-xs font-semibold" style={{ color: '#17232B' }}>{item.quantity} Kg</span>
+                          <button type="button" onClick={() => onUpdateQuantity?.(index, item.quantity + 1)}
+                            className="w-7 h-7 rounded-full flex items-center justify-center shadow-sm transition"
+                            style={{ background: '#fff', border: '1.5px solid #EDE3D2' }}
+                            onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#087F8C')}
+                            onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#EDE3D2')}
+                            aria-label="Increase">
+                            <Plus size={13} style={{ color: '#4A5E6A' }} />
                           </button>
                         </div>
                       </div>
@@ -149,59 +120,61 @@ export default function CartSidebar({
               })}
             </div>
 
-            <div className="border-t border-slate-200 p-5 bg-white space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold text-gray-900">{formatINR(subtotal)}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600 flex items-center gap-1">
-                  <Package size={14} />
-                  Packaging
-                </span>
-                <span className="font-semibold text-gray-900">{formatINR(packagingCharge)}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600 flex items-center gap-1">
-                  <Truck size={14} />
-                  Delivery
-                </span>
-                <span className="font-semibold text-gray-900">{formatINR(deliveryCharge)}</span>
-              </div>
+            {/* Totals */}
+            <div className="p-4 sm:p-5 space-y-2.5" style={{ background: '#fff', borderTop: '1.5px solid #EDE3D2' }}>
+              {[
+                { label: 'Subtotal', value: fmt(subtotal), icon: null },
+                { label: 'Packaging', value: fmt(packagingCharge), icon: <Package size={13} /> },
+                { label: 'Delivery',  value: fmt(deliveryCharge),  icon: <Truck size={13} /> },
+              ].map((row) => (
+                <div key={row.label} className="flex items-center justify-between text-xs sm:text-sm">
+                  <span className="flex items-center gap-1.5" style={{ color: '#5A6E7A' }}>
+                    {row.icon}
+                    {row.label}
+                  </span>
+                  <span className="font-semibold" style={{ color: '#17232B' }}>{row.value}</span>
+                </div>
+              ))}
               {discount > 0 && (
-                <div className="flex items-center justify-between text-sm text-green-600">
-                  <span className="font-semibold">Bulk Discount</span>
-                  <span className="font-semibold">-{formatINR(discount)}</span>
+                <div className="flex items-center justify-between text-xs sm:text-sm font-semibold" style={{ color: '#2F7A5E' }}>
+                  <span>Bulk Discount</span>
+                  <span>-{fmt(discount)}</span>
                 </div>
               )}
-              <div className="border-t border-slate-200 pt-3 flex items-center justify-between">
-                <span className="text-lg font-bold text-gray-900">Grand Total</span>
-                <span className="text-xl font-bold text-ocean">{formatINR(total)}</span>
+              <div className="flex items-center justify-between pt-2.5" style={{ borderTop: '2px solid #EDE3D2' }}>
+                <span className="text-base font-bold" style={{ color: '#17232B' }}>Grand Total</span>
+                <span className="text-lg font-extrabold" style={{ color: '#087F8C' }}>{fmt(total)}</span>
               </div>
               {discount > 0 && (
-                <p className="text-xs text-green-600 text-center">
-                  🎉 You're saving {formatINR(discount)} by ordering in bulk!
+                <p className="text-xs text-center font-medium" style={{ color: '#2F7A5E' }}>
+                  You're saving {fmt(discount)} with a bulk order!
                 </p>
               )}
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={onCheckout}
-                  className="flex-1 bg-gradient-to-r from-ocean to-aqua hover:from-aqua hover:to-ocean text-white px-4 py-3 rounded-full font-semibold transition flex items-center justify-center gap-2"
+
+              {/* Actions */}
+              <div className="flex gap-2 sm:gap-3 pt-1">
+                <button type="button" onClick={onCheckout}
+                  className="flex-1 py-2.5 sm:py-3 rounded-full text-sm font-bold text-white flex items-center justify-center gap-1.5 transition"
+                  style={{ background: '#087F8C', boxShadow: '0 4px 14px -3px rgba(8,127,140,0.4)' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = '#0A9BA9')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = '#087F8C')}
                 >
                   Checkout
                 </button>
-                <button
-                  type="button"
-                  onClick={handleWhatsAppOrder}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-full font-semibold transition flex items-center justify-center gap-2"
+                <button type="button" onClick={handleWhatsApp}
+                  className="py-2.5 sm:py-3 px-3.5 rounded-full font-bold text-white flex items-center justify-center transition"
+                  style={{ background: '#2F7A5E' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = '#3a9470')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = '#2F7A5E')}
+                  aria-label="Order via WhatsApp"
                 >
-                  <MessageCircle size={18} />
+                  <MessageCircle size={17} />
                 </button>
-                <button
-                  type="button"
-                  onClick={onClearCart}
-                  className="px-4 py-3 rounded-full border border-slate-200 text-gray-600 font-semibold hover:border-red-500 hover:text-red-500 transition"
+                <button type="button" onClick={onClearCart}
+                  className="py-2.5 sm:py-3 px-3.5 rounded-full font-bold text-sm transition"
+                  style={{ border: '2px solid #EDE3D2', color: '#5A6E7A' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#dc2626'; e.currentTarget.style.color = '#dc2626' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#EDE3D2'; e.currentTarget.style.color = '#5A6E7A' }}
                 >
                   Clear
                 </button>

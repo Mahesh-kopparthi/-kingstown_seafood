@@ -2,47 +2,96 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* ─────────────────────────────────────────
+   Base reset
+───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: radial-gradient(circle at top left, rgba(0, 119, 190, 0.08), transparent 30%), linear-gradient(180deg, #f7fbff 0%, #ffffff 100%);
+  /* Deep navy shows between sections during scroll */
+  background-color: #0B2638;
+  color: #17232B;
+  line-height: 1.6;
+  overflow-x: hidden;
 }
 
-.gradient-ocean {
-  background: linear-gradient(135deg, #0077be 0%, #00a8e8 100%);
+/* ─────────────────────────────────────────
+   Scrollbar
+───────────────────────────────────────── */
+::-webkit-scrollbar        { width: 5px; }
+::-webkit-scrollbar-track  { background: #0B2638; }
+::-webkit-scrollbar-thumb  { background: #087F8C; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #20B8C5; }
+
+/* ─────────────────────────────────────────
+   Utility classes
+───────────────────────────────────────── */
+/* Primary teal gradient — buttons, CTAs */
+.gradient-teal {
+  background: linear-gradient(135deg, #087F8C 0%, #20B8C5 100%);
 }
 
-.gradient-text {
-  background: linear-gradient(135deg, #0077be 0%, #00c9ff 100%);
+/* Text gradients */
+.gradient-text-teal {
+  background: linear-gradient(135deg, #087F8C 0%, #20B8C5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+/* Keep old class names working */
+.gradient-text-ocean {
+  background: linear-gradient(135deg, #087F8C 0%, #20B8C5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-warm {
+  background: linear-gradient(135deg, #087F8C 0%, #20B8C5 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.card-hover {
-  transition: all 0.3s ease;
+/* Premium card lift */
+.card-lift {
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+.card-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 48px -10px rgba(8, 127, 140, 0.22);
 }
 
-.card-hover:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 25px -5px rgba(0, 119, 190, 0.2);
+/* ─────────────────────────────────────────
+   Focus ring
+───────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #087F8C;
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
-.glass-effect {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 119, 190, 0.1);
+/* ─────────────────────────────────────────
+   Images
+───────────────────────────────────────── */
+img { display: block; max-width: 100%; }
+
+/* ─────────────────────────────────────────
+   Bubble float — hero decoration
+───────────────────────────────────────── */
+@keyframes bubbleRise {
+  0%   { transform: translateY(0) scale(1);       opacity: 0.4; }
+  100% { transform: translateY(-100px) scale(0.3); opacity: 0; }
+}
+.bubble {
+  animation: bubbleRise var(--dur, 3s) ease-in var(--delay, 0s) infinite;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.5), rgba(32,184,197,0.15));
+  border-radius: 50%;
 }

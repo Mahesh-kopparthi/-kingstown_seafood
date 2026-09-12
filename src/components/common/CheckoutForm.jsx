@@ -12,6 +12,9 @@ export default function CheckoutForm({ cartItems, onClose, onClearCart }) {
   })
   const [errors, setErrors] = useState({})
   const [submitted, setSubmitted] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState('')
+  const [paymentStep, setPaymentStep] = useState('details')
+  const [paymentError, setPaymentError] = useState('')
 
   const packagingCharge = 60
   const deliveryCharge = 50
@@ -20,6 +23,13 @@ export default function CheckoutForm({ cartItems, onClose, onClearCart }) {
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0)
   const discount = totalQuantity >= 3 ? subtotal * 0.05 : totalQuantity >= 6 ? subtotal * 0.1 : 0
   const total = subtotal - discount + packagingCharge + deliveryCharge
+
+  const paymentOptions = [
+    { id: 'gpay', label: 'Google Pay', hint: 'Pay using Google Pay', color: 'bg-sky-500' },
+    { id: 'phonepe', label: 'PhonePe', hint: 'Pay using PhonePe', color: 'bg-fuchsia-500' },
+    { id: 'paytm', label: 'Paytm', hint: 'Pay using Paytm', color: 'bg-blue-600' },
+    { id: 'upi', label: 'Any UPI', hint: 'Pay with any UPI app', color: 'bg-green-600' },
+  ]
 
   const formatINR = (value) =>
     new Intl.NumberFormat('en-IN', {
@@ -52,44 +62,43 @@ export default function CheckoutForm({ cartItems, onClose, onClearCart }) {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  const handleSelectPayment = (method) => {
+    setPaymentMethod(method)
+    setPaymentError('')
+  }
+
+  const resetCheckout = () => {
+    setPaymentStep('details')
+    setPaymentMethod('')
+    setPaymentError('')
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
 
     if (!validateForm()) return
+    if (!paymentMethod) {
+      setPaymentError('Please select a payment method to continue.')
+      return
+    }
 
-    const orderText = cartItems
-      .map(
-        (item) =>
-          `• ${item.name} (${item.size}) - ${item.quantity} Kg - ${formatINR(item.total)}`
-      )
-      .join('\n')
+    setPaymentStep('gateway')
+  }
 
-    const message = `*New Order from Kings Town Seafood Website*\n\n` +
-      `*Customer Details:*\n` +
-      `Name: ${formData.name}\n` +
-      `Phone: ${formData.phone}\n` +
-      `Address: ${formData.address}\n` +
-      `City: ${formData.city}\n` +
-      `PIN Code: ${formData.pinCode}\n\n` +
-      `*Order Items:*\n${orderText}\n\n` +
-      `*Order Notes:* ${formData.notes || 'None'}\n\n` +
-      `*Order Summary:*\n` +
-      `Subtotal: ${formatINR(subtotal)}\n` +
-      `Packaging: ${formatINR(packagingCharge)}\n` +
-      `Delivery: ${formatINR(deliveryCharge)}${discount > 0 ? `\nDiscount: -${formatINR(discount)}` : ''}\n` +
-      `Total Quantity: ${totalQuantity} Kg\n` +
-      `Total Amount: ${formatINR(total)}\n\n` +
-      `Please confirm my order.`
-
-    const encodedMessage = encodeURIComponent(message)
-    window.open(`https://wa.me/918586164999?text=${encodedMessage}`, '_blank')
-
+  const handleConfirmPayment = () => {
     setSubmitted(true)
     onClearCart()
+
     setTimeout(() => {
       setSubmitted(false)
+      resetCheckout()
       onClose()
     }, 3000)
+  }
+
+  const handleClose = () => {
+    resetCheckout()
+    onClose()
   }
 
   if (submitted) {
@@ -283,14 +292,94 @@ export default function CheckoutForm({ cartItems, onClose, onClearCart }) {
               </div>
             </div>
 
-            <button
-              type="submit"
-              className="w-full bg-green-500 hover:bg-green-600 text-white px-6 py-4 rounded-full font-bold text-lg transition flex items-center justify-center gap-2 shadow-lg"
-            >
-              <MessageCircle size={20} />
-              Send Order via WhatsApp
-            </button>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-bold text-gray-800 mb-4">Choose Payment Method</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {paymentOptions.map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => handleSelectPayment(option.id)}
+                      className={`rounded-3xl p-4 text-left shadow-sm transition border ${paymentMethod === option.id ? 'border-ocean bg-slate-50' : 'border-slate-200 bg-white hover:bg-slate-50'} `}
+                    >
+                      <div className={`inline-flex items-center justify-center h-10 w-10 rounded-2xl text-white ${option.color}`}>
+                        {option.label.slice(0, 2).toUpperCase()}
+                      </div>
+                      <div className="mt-3">
+                        <p className="font-semibold text-gray-900">{option.label}</p>
+                        <p className="text-sm text-gray-500">{option.hint}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                {paymentError && <p className="mt-3 text-sm text-red-500">{paymentError}</p>}
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="flex justify-between items-center text-sm text-gray-600 mb-3">
+                  <span>Grand Total</span>
+                  <span className="font-semibold text-gray-900">{formatINR(total)}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                  <div>
+                    <p>Subtotal</p>
+                    <p className="font-semibold text-gray-900">{formatINR(subtotal)}</p>
+                  </div>
+                  <div>
+                    <p>Delivery</p>
+                    <p className="font-semibold text-gray-900">{formatINR(deliveryCharge)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-ocean hover:bg-aqua text-white px-6 py-4 rounded-full font-bold text-lg transition flex items-center justify-center gap-2 shadow-lg"
+              >
+                <MessageCircle size={20} />
+                Continue to Payment
+              </button>
+            </div>
           </form>
+
+          {paymentStep === 'gateway' && paymentMethod && (
+            <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="h-12 w-12 rounded-2xl bg-ocean text-white flex items-center justify-center text-xl font-bold">
+                  {paymentMethod === 'gpay' ? 'G' : paymentMethod === 'phonepe' ? 'P' : paymentMethod === 'paytm' ? 'T' : 'U'}
+                </div>
+                <div>
+                  <p className="text-lg font-semibold text-gray-900">{paymentOptions.find((option) => option.id === paymentMethod)?.label}</p>
+                  <p className="text-sm text-gray-500">Complete payment with your {paymentOptions.find((option) => option.id === paymentMethod)?.label} app.</p>
+                </div>
+              </div>
+
+              <div className="rounded-3xl bg-slate-50 p-4 border border-slate-200">
+                <p className="text-sm text-gray-600">UPI ID</p>
+                <p className="text-lg font-semibold text-gray-900">kingstown@upi</p>
+                <p className="mt-2 text-sm text-gray-500">Amount to pay</p>
+                <p className="text-2xl font-bold text-ocean">{formatINR(total)}</p>
+              </div>
+
+              <div className="mt-4 space-y-3">
+                <button
+                  type="button"
+                  onClick={handleConfirmPayment}
+                  className="w-full bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-full font-semibold transition"
+                >
+                  I have paid via {paymentOptions.find((option) => option.id === paymentMethod)?.label}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentStep('details')}
+                  className="w-full border border-slate-200 text-gray-700 px-5 py-3 rounded-full transition"
+                >
+                  Change payment method
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

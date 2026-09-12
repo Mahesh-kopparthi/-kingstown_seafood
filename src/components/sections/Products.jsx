@@ -1,199 +1,206 @@
 import React, { useState } from 'react'
-import { ArrowLeft, Star, Award, TrendingUp } from 'lucide-react'
+import { Leaf, ShoppingBag, ChevronRight } from 'lucide-react'
 import { productCategories } from '../../data/productCatalog'
 import { productDetails } from '../../data/productDetails'
+
+/* Badge colours — restrained, no neon */
+const badgeStyle = {
+  'Best Seller': { bg: '#E8783A', color: '#fff' },   // coral — used sparingly
+  'Premium':     { bg: '#087F8C', color: '#fff' },   // teal
+  'Traditional': { bg: '#17232B', color: '#fff' },   // charcoal
+  'Farm Fresh':  { bg: '#2F7A5E', color: '#fff' },   // muted green
+  'Coming Soon': { bg: '#8A9BA6', color: '#fff' },   // muted slate
+  'New':         { bg: '#456B7A', color: '#fff' },   // muted ocean
+}
 
 export default function Products({ onSelectProduct }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
 
-  const currentCategory = productCategories.find((category) => category.id === selectedCategory)
-
-  // Flatten all products into a single list with category info
-  const allProducts = productCategories.flatMap((category) =>
-    category.items.map((item) => ({
-      ...item,
-      category: category.title,
-      categoryImage: category.image,
-    }))
+  const allProducts = productCategories.flatMap((cat) =>
+    cat.items.map((item) => ({ ...item, categoryId: cat.id, categoryTitle: cat.title }))
   )
+  const displayed = selectedCategory
+    ? allProducts.filter((p) => p.categoryId === selectedCategory)
+    : allProducts
 
-  const featuredProducts = allProducts.filter((p) => p.badge === 'Best Seller' || p.badge === 'Premium')
-
-  if (currentCategory) {
-    return (
-      <section id="products" className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <button
-            type="button"
-            onClick={() => setSelectedCategory(null)}
-            className="mb-8 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:text-ocean"
-          >
-            <ArrowLeft size={16} />
-            Back to all products
-          </button>
-
-          <div className="mb-10 rounded-[2rem] bg-white p-6 shadow-xl border border-slate-100 md:p-8">
-            <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-              <div className="overflow-hidden rounded-3xl">
-                <img src={currentCategory.image} alt={currentCategory.title} className="h-full w-full object-cover" />
-              </div>
-              <div className="flex flex-col justify-center">
-                <div className="inline-flex w-fit rounded-full bg-ocean/10 px-3 py-2 text-sm font-semibold text-ocean mb-4">
-                  {currentCategory.title}
-                </div>
-                <h3 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{currentCategory.title}</h3>
-                <p className="text-lg text-gray-600 mb-6">{currentCategory.summary}</p>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {currentCategory.items.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => onSelectProduct?.(item.id)}
-                      className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md relative"
-                    >
-                      {item.badge && (
-                        <span className="absolute top-3 right-3 bg-ocean text-white text-xs font-semibold px-3 py-1 rounded-full">
-                          {item.badge}
-                        </span>
-                      )}
-                      <img src={item.image} alt={item.name} className="mb-3 h-36 w-full rounded-xl object-cover" />
-                      <h4 className="text-lg font-semibold text-gray-800">{item.name}</h4>
-                      <p className="mt-2 text-sm font-bold text-ocean">{item.priceRange}</p>
-                      <p className="mt-3 inline-flex rounded-full bg-ocean/10 px-3 py-1 text-sm font-semibold text-ocean">
-                        View Details
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    )
-  }
+  const categories = [
+    { id: null, label: 'All Products' },
+    ...productCategories.map((c) => ({ id: c.id, label: c.title })),
+  ]
 
   return (
-    <section id="products" className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="text-center mb-12 animate-fadeInUp">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Our Products</h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Browse our premium seafood collections with a clean, modern experience.
+    <section id="products" className="relative overflow-hidden" style={{ background: '#FAF7F0' }}>
+      {/* Top edge — muted teal, not orange */}
+      <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(8,127,140,0.3), transparent)' }} aria-hidden="true" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
+
+        {/* Header */}
+        <div className="text-center mb-14">
+          <span
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-5"
+            style={{ background: 'rgba(8,127,140,0.1)', color: '#087F8C', border: '1px solid rgba(8,127,140,0.18)' }}
+          >
+            <Leaf size={13} />
+            Farm-Fresh Seafood
+          </span>
+          <h2 className="text-4xl sm:text-5xl font-bold mb-5 leading-tight" style={{ color: '#17232B' }}>
+            Our Product <span className="gradient-text-teal">Catalog</span>
+          </h2>
+          <p className="text-lg max-w-2xl mx-auto leading-relaxed" style={{ color: '#4A5E6A' }}>
+            Prawns and fish sourced from trusted aquaculture farms and selected suppliers.
+            Freshness and quality checked before every order.
           </p>
         </div>
 
-        {/* Featured Products */}
-        {featuredProducts.length > 0 && (
-          <div className="mb-16">
-            <div className="flex items-center gap-2 mb-8">
-              <Star size={20} className="text-amber-500" />
-              <h3 className="text-2xl font-bold text-gray-800">Featured Products</h3>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {featuredProducts.map((product) => {
-                const details = productDetails[product.id]
-                const minPrice = details?.sizes?.length
-                  ? Math.min(...details.sizes.map((s) => s.price))
-                  : 0
+        {/* Category filter */}
+        <div className="flex flex-wrap gap-2.5 justify-center mb-12">
+          {categories.map((cat) => (
+            <button
+              key={String(cat.id)}
+              type="button"
+              onClick={() => setSelectedCategory(cat.id)}
+              className="px-6 py-2.5 rounded-full text-sm font-bold transition-all"
+              style={
+                selectedCategory === cat.id
+                  ? { background: '#087F8C', color: '#fff', border: '2px solid #087F8C', boxShadow: '0 4px 16px -3px rgba(8,127,140,0.4)' }
+                  : { background: '#fff', color: '#4A5E6A', border: '2px solid #D4C4A8' }
+              }
+              onMouseEnter={(e) => { if (selectedCategory !== cat.id) e.currentTarget.style.borderColor = '#087F8C' }}
+              onMouseLeave={(e) => { if (selectedCategory !== cat.id) e.currentTarget.style.borderColor = '#D4C4A8' }}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
 
-                return (
+        {/* Grid */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {displayed.map((product) => {
+            const details     = productDetails[product.id]
+            const minPrice    = details?.sizes?.length ? Math.min(...details.sizes.map((s) => s.price)) : null
+            const isAvailable = Boolean(details)
+            const bStyle      = badgeStyle[product.badge] || { bg: '#8A9BA6', color: '#fff' }
+
+            return (
+              <article
+                key={`${product.categoryId}-${product.id}`}
+                className="group flex flex-col rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1.5"
+                style={{ background: '#fff', border: '1.5px solid #EDE3D2', boxShadow: '0 2px 16px -4px rgba(23,35,43,0.09)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(8,127,140,0.35)'
+                  e.currentTarget.style.boxShadow = '0 16px 48px -8px rgba(8,127,140,0.18)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#EDE3D2'
+                  e.currentTarget.style.boxShadow = '0 2px 16px -4px rgba(23,35,43,0.09)'
+                }}
+              >
+                {/* Image */}
+                <div className="relative aspect-[4/3] overflow-hidden" style={{ background: '#EDE3D2' }}>
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{ background: 'linear-gradient(to top, rgba(11,38,56,0.6), transparent 55%)' }}
+                  />
+                  {product.badge && (
+                    <span
+                      className="absolute top-3 left-3 px-3 py-1 text-xs font-black rounded-full shadow"
+                      style={{ background: bStyle.bg, color: bStyle.color }}
+                    >
+                      {product.badge}
+                    </span>
+                  )}
+                  {product.source && (
+                    <span
+                      className="absolute bottom-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold shadow"
+                      style={{ background: 'rgba(250,247,240,0.95)', color: '#087F8C' }}
+                    >
+                      <Leaf size={10} style={{ color: '#2F7A5E' }} />
+                      {product.source}
+                    </span>
+                  )}
+                </div>
+
+                {/* Body */}
+                <div className="p-5 flex flex-col flex-1">
+                  <p className="text-[11px] font-black uppercase tracking-widest mb-1.5" style={{ color: '#087F8C' }}>
+                    {product.categoryTitle}
+                  </p>
+                  <h3 className="text-[1.05rem] font-bold mb-4 leading-snug" style={{ color: '#17232B' }}>
+                    {product.name}
+                  </h3>
+
+                  <div className="flex items-end justify-between mt-auto mb-4">
+                    <div>
+                      <span className="text-xl font-extrabold" style={{ color: '#087F8C' }}>
+                        {minPrice != null ? `₹${minPrice}` : product.priceRange}
+                      </span>
+                      {minPrice != null && (
+                        <span className="text-xs ml-1" style={{ color: '#8A9BA6' }}>/kg onwards</span>
+                      )}
+                    </div>
+                    <span
+                      className="text-xs font-bold px-2.5 py-1 rounded-full"
+                      style={
+                        isAvailable
+                          ? { background: 'rgba(8,127,140,0.1)', color: '#087F8C', border: '1px solid rgba(8,127,140,0.2)' }
+                          : { background: '#F0EBE0', color: '#8A9BA6' }
+                      }
+                    >
+                      {isAvailable ? 'In Stock' : 'Soon'}
+                    </span>
+                  </div>
+
                   <button
-                    key={product.id}
                     type="button"
-                    onClick={() => onSelectProduct?.(product.id)}
-                    className="group text-left overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg transition hover:-translate-y-2 hover:shadow-2xl"
+                    onClick={() => isAvailable && onSelectProduct?.(product.id)}
+                    disabled={!isAvailable}
+                    aria-label={isAvailable ? `View ${product.name}` : `${product.name} coming soon`}
+                    className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all"
+                    style={
+                      isAvailable
+                        ? { background: '#087F8C', color: '#fff', boxShadow: '0 4px 16px -3px rgba(8,127,140,0.35)' }
+                        : { background: '#F0EBE0', color: '#8A9BA6', cursor: 'not-allowed' }
+                    }
+                    onMouseEnter={(e) => { if (isAvailable) e.currentTarget.style.background = '#0A9BA9' }}
+                    onMouseLeave={(e) => { if (isAvailable) e.currentTarget.style.background = '#087F8C' }}
                   >
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent" />
-                      <div className="absolute top-3 left-3">
-                        <span className="inline-flex items-center gap-1 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                          <Award size={12} />
-                          {product.badge}
-                        </span>
-                      </div>
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <h4 className="text-lg font-bold text-white">{product.name}</h4>
-                        <p className="text-sm text-slate-200">{product.category}</p>
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-ocean">
-                          {minPrice > 0 ? `₹${minPrice}/kg` : product.priceRange}
-                        </span>
-                        <span className="text-xs bg-ocean/10 text-ocean px-2 py-1 rounded-full">
-                          View Details
-                        </span>
-                      </div>
-                    </div>
+                    {isAvailable ? (<><ShoppingBag size={15} />View & Order</>) : 'Coming Soon'}
                   </button>
-                )
-              })}
+                </div>
+              </article>
+            )
+          })}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="mt-16">
+          <div
+            className="rounded-3xl px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6"
+            style={{ background: '#0B2638', border: '1px solid rgba(8,127,140,0.2)' }}
+          >
+            <div>
+              <p className="text-white font-bold text-xl mb-1">Need a custom or bulk order?</p>
+              <p className="text-sm" style={{ color: 'rgba(221,243,239,0.6)' }}>Contact us for wholesale pricing and special requirements.</p>
             </div>
-          </div>
-        )}
-
-        {/* All Products by Category */}
-        <div>
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-1 bg-ocean rounded-full" />
-            <h3 className="text-2xl font-bold text-gray-800">All Products</h3>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {allProducts.map((product) => {
-              const details = productDetails[product.id]
-              const minPrice = details?.sizes?.length
-                ? Math.min(...details.sizes.map((s) => s.price))
-                : 0
-
-              return (
-                <button
-                  key={product.id}
-                  type="button"
-                  onClick={() => onSelectProduct?.(product.id)}
-                  className="group text-left overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md transition hover:-translate-y-1 hover:shadow-lg"
-                >
-                  <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent" />
-                    {product.badge && (
-                      <div className="absolute top-3 left-3">
-                        <span className="inline-flex items-center gap-1 bg-ocean text-white px-3 py-1 rounded-full text-xs font-semibold">
-                          {product.badge === 'Best Seller' ? <Star size={12} /> : product.badge === 'Premium' ? <Award size={12} /> : <TrendingUp size={12} />}
-                          {product.badge}
-                        </span>
-                      </div>
-                    )}
-                    <div className="absolute bottom-3 left-3 right-3">
-                      <h4 className="text-lg font-bold text-white">{product.name}</h4>
-                      <p className="text-sm text-slate-200">{product.category}</p>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-ocean">
-                        {minPrice > 0 ? `₹${minPrice}/kg` : product.priceRange}
-                      </span>
-                      <span className="text-xs bg-ocean/10 text-ocean px-2 py-1 rounded-full">
-                        View Details
-                      </span>
-                    </div>
-                  </div>
-                </button>
-              )
-            })}
+            <a
+              href="#contact"
+              className="flex-shrink-0 inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-bold text-sm text-white transition-all hover:-translate-y-0.5"
+              style={{ background: '#087F8C', boxShadow: '0 4px 18px -3px rgba(8,127,140,0.45)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#0A9BA9')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = '#087F8C')}
+            >
+              Contact Us <ChevronRight size={15} />
+            </a>
           </div>
         </div>
+
       </div>
     </section>
   )
