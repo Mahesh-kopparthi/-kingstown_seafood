@@ -3,13 +3,13 @@ services:
     name: kingstown-seafood
     env: python
     plan: free
+    rootDirectory: backend
     buildCommand: |
-      npm install
-      npm run build
-      mkdir -p backend/static
-      cp -r dist/* backend/static/
-      cd backend && pip install -r requirements.txt
-    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+      cd .. && npm install && npm run build
+      mkdir -p static
+      cp -r ../dist/* static/
+      pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
         fromDatabase:
