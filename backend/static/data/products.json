@@ -1,0 +1,56 @@
+{
+  "categories": [
+    {
+      "id": "prawns",
+      "title": "Prawns",
+      "image": "/images/prawns.jpg",
+      "summary": "Fresh prawns selected for premium taste and quality.",
+      "items": [
+        {
+          "id": "king-prawns",
+          "name": "King Prawns",
+          "price": "$18-24/kg",
+          "image": "/images/prawns.jpg"
+        },
+        {
+          "id": "tiger-prawns",
+          "name": "Tiger Prawns",
+          "price": "$16-22/kg",
+          "image": "/images/prawns.jpg"
+        },
+        {
+          "id": "white-prawns",
+          "name": "White Prawns",
+          "price": "$14-20/kg",
+          "image": "/images/prawns.jpg"
+        }
+      ]
+    },
+    {
+      "id": "fishes",
+      "title": "Fishes",
+      "image": "/images/fishes.jpg",
+      "summary": "Premium fish varieties sourced fresh for every kitchen.",
+      "items": [
+        {
+          "id": "salmon",
+          "name": "Salmon",
+          "price": "$20-26/kg",
+          "image": "/images/fishes.jpg"
+        },
+        {
+          "id": "seabass",
+          "name": "Sea Bass",
+          "price": "$18-24/kg",
+          "image": "/images/fishes.jpg"
+        },
+        {
+          "id": "tuna",
+          "name": "Tuna",
+          "price": "$22-30/kg",
+          "image": "/images/fishes.jpg"
+        }
+      ]
+    }
+  ]
+}
