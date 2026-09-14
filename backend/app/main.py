@@ -31,14 +31,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(health.router, prefix="/api")
-app.include_router(products.router, prefix="/api")
-
 # Mount static files for frontend
 static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
 if os.path.exists(static_dir):
-    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+    app.mount("/assets", StaticFiles(directory=os.path.join(static_dir, "assets")), name="assets")
+    app.mount("/images", StaticFiles(directory=os.path.join(static_dir, "images")), name="images")
+    app.mount("/data", StaticFiles(directory=os.path.join(static_dir, "data")), name="data")
+
+# Include routers
+app.include_router(health.router, prefix="/api")
+app.include_router(products.router, prefix="/api")
 
 
 @app.get("/api")
@@ -54,7 +56,11 @@ async def api_root():
 
 @app.get("/{full_path:path}")
 async def serve_spa(full_path: str):
-    """Serve React SPA for all non-API routes."""
+    """Serve React SPA for all non-API and non-static routes."""
+    # Skip if it's an API route or static asset
+    if full_path.startswith("api/") or full_path.startswith("assets/") or full_path.startswith("images/") or full_path.startswith("data/"):
+        return {"message": "Route not found"}
+    
     static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
     index_file = os.path.join(static_dir, "index.html")
     
